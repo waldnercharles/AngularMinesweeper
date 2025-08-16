@@ -50,6 +50,7 @@ export class MinesweeperService {
       }
       this.gameStateSubject.next('lost');
       this.boardSubject.next(next);
+
       return;
     }
 
@@ -74,6 +75,10 @@ export class MinesweeperService {
     }
 
     this.boardSubject.next(next);
+
+    if (this.isFullyRevealed(next)) {
+      this.gameStateSubject.next('won');
+    }
   }
 
   toggleFlag(row: number, col: number): void {
@@ -82,6 +87,15 @@ export class MinesweeperService {
     if (cell.isRevealed) return;
     cell.hasFlag = !cell.hasFlag;
     this.boardSubject.next(next);
+  }
+
+  private isFullyRevealed(board: Cell[][]){
+    for (const row of board) {
+      for (const cell of row) {
+        if (!cell.isRevealed && !cell.hasMine) return false;
+      }
+    }
+    return true;
   }
 
   private forEachNeighbor(cells: Cell[][], row: number, col: number, fn: (row: number, cell: number) => void) {

@@ -31,7 +31,10 @@
   background: #bbb;
 }
 
-.cell.revealed { background: #f8f8f8; }
+.cell.revealed {
+  background: #f8f8f8;
+  cursor: default;
+}
 .cell.revealed.empty { border: 1px dashed #aaa; }
 .cell.flag { background: lemonchiffon; }
 
