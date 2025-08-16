@@ -5,6 +5,9 @@
         <button
           type="button"
           class="cell"
+          [class.revealed]="cell.isRevealed"
+          [class.flag]="cell.hasFlag"
+          [class.empty]="cell.isRevealed && !cell.hasFlag && !cell.hasMine && cell.adjacentMines == 0"
           (click)="onCellClick(cell.row, cell.col)"
           (contextmenu)="onRightClick($event, cell.row, cell.col)"> <!-- This feels like a hack, but I couldn't find another way to bind to right-click. -->
           @if (cell.hasMine && cell.isRevealed) {
@@ -16,7 +19,7 @@
           } @else if (!cell.isRevealed && cell.hasFlag) {
             🚩
           } @else if (cell.isRevealed && !cell.hasMine && cell.adjacentMines > 0) {
-            {{cell.adjacentMines}}
+            <span [class]="'adjacent-'+ cell.adjacentMines">{{cell.adjacentMines}}</span>
           }
         </button>
       }

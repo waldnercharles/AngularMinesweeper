@@ -30,3 +30,16 @@
 .cell:active {
   background: #bbb;
 }
+
+.cell.revealed { background: #f8f8f8; }
+.cell.revealed.empty { border: 1px dashed #aaa; }
+.cell.flag { background: lemonchiffon; }
+
+.cell .adjacent-1 { color: blue; }
+.cell .adjacent-2 { color: green; }
+.cell .adjacent-3 { color: red; }
+.cell .adjacent-4 { color: blueviolet; }
+.cell .adjacent-5 { color: darkorange; }
+.cell .adjacent-6 { color: teal; }
+.cell .adjacent-7 { color: black; }
+.cell .adjacent-8 { color: dimgray; }
