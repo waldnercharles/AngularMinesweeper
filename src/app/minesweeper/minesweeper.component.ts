@@ -24,4 +24,8 @@ export class MinesweeperComponent {
   onCellClick(event: {row: number, col: number}): void {
     this.minesweeperService.revealCell(event.row, event.col);
   }
+
+  onFlagClick(event: {row: number, col: number}): void {
+    this.minesweeperService.toggleFlag(event.row, event.col);
+  }
 }

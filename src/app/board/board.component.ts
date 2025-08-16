@@ -10,8 +10,14 @@ import { Cell } from '../services/minesweeper.service';
 export class BoardComponent {
   @Input() cells: Cell[][] = [];
   @Output() cellClick = new EventEmitter<{row: number, col: number}>();
+  @Output() flagClick = new EventEmitter<{row: number, col: number}>();
 
-  onCellClick(row: number, col: number): void {
+  onCellClick(row: number, col: number) {
     this.cellClick.emit({row, col});
+  }
+
+  onRightClick(event: MouseEvent, row: number, col: number) {
+    event.preventDefault();
+    this.flagClick.emit({row, col});
   }
 }

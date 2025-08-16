@@ -5,7 +5,7 @@
     </header>
 
     <main class="content">
-      <app-board [cells]="cells" (cellClick)="onCellClick($event)">
+      <app-board [cells]="cells" (cellClick)="onCellClick($event)" (flagClick)="onFlagClick($event)">
       </app-board>
     </main>
   }

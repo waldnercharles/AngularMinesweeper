@@ -59,6 +59,11 @@ export class MinesweeperService {
   }
 
   toggleFlag(row: number, col: number): void {
+    const next = this.deepCopy(this.boardSubject.getValue());
+    const cell = next[row][col];
+    if (cell.isRevealed) return;
+    cell.hasFlag = !cell.hasFlag;
+    this.boardSubject.next(next);
   }
 
   private forEachNeighbor(cells: Cell[][], row: number, col: number, fn: (row: number, cell: number) => void) {
