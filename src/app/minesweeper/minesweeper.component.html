@@ -1,0 +1,12 @@
+﻿<div class="container">
+  @if (minesweeperService.cells$ | async; as cells) {
+    <header class="header">
+      <h1>Minesweeper</h1>
+    </header>
+
+    <main class="content">
+      <app-board [cells]="cells">
+      </app-board>
+    </main>
+  }
+</div>

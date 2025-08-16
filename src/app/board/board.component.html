@@ -6,7 +6,9 @@
           type="button"
           class="cell"
         >
-          <span>{{cell.row * 10 + cell.col}}</span>
+          @if (cell.hasMine && cell.isRevealed) {
+            <span>💣</span>
+          }
         </button>
       }
     </div>
