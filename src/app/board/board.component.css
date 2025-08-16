@@ -1,0 +1,32 @@
+﻿.board {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  gap: 4px;
+}
+
+.cell {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #aaa;
+  background: #eee;
+  color: #222;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cell:hover {
+  background: #ddd;
+}
+
+.cell:active {
+  background: #bbb;
+}
