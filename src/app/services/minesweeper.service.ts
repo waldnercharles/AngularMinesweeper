@@ -7,25 +7,64 @@ export interface Cell {
   isRevealed: boolean;
   isFlagged: boolean;
   hasMine: boolean;
+  adjacentMines: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class MinesweeperService {
-  private readonly cellsSubject = new BehaviorSubject<Cell[][]>([]);
-  readonly cells$ = this.cellsSubject.asObservable();
+  private readonly boardSubject = new BehaviorSubject<Cell[][]>([]);
+
+  readonly board$ = this.boardSubject.asObservable();
 
   newGame(rows: number, cols: number, mineCount: number): void {
     let board = this.createEmptyBoard(rows, cols);
     board = this.placeMines(board, rows, cols, mineCount);
-    this.cellsSubject.next(board);
+    this.boardSubject.next(board);
   }
 
   revealCell(row: number, col: number): void {
+    const board = this.deepCopy(this.boardSubject.getValue());
+    const selectedCell = board[row][col];
+    if (selectedCell.isRevealed || selectedCell.isFlagged) return;
+
+    if (selectedCell.hasMine) {
+      // TODO: Lose
+      this.boardSubject.next(board);
+      return;
+    }
+
+    // const queue: [number, number][] = [[row, col]];
+    // while (queue.length > 0) {
+    //   const [x, y] = queue.shift()!;
+    //   const cell = board[x][y];
+    //
+    //   if (cell.isRevealed || cell.isFlagged) continue;
+    //   cell.isRevealed = true;
+    //
+    //   if (!cell.hasMine && cell.adjacentMines == 0) {
+    //
+    //   }
+    // }
   }
 
   toggleFlag(row: number, col: number): void {
+  }
+
+  private forEachNeighbor(cells: Cell[][], row: number, col: number, fn: (row: number, cell: number) => void) {
+    const rows = cells.length;
+    const cols = cells[0]?.length ?? 0;
+    for (let deltaRow = -1; deltaRow <= 1; deltaRow++) {
+      for (let deltaCol = -1; deltaCol <= 1; deltaCol++) {
+        if (deltaRow == 0 && deltaCol == 0) continue;
+        const r = row + deltaRow;
+        const c = col + deltaCol;
+
+        if (r >= 0 && r < rows && c >= 0 && c < cols)
+          fn(r, c);
+      }
+    }
   }
 
   // TODO: Not sure if we'll need this in the end... Maybe just move everything into newGame?
@@ -39,7 +78,8 @@ export class MinesweeperService {
           col,
           isRevealed: true,
           isFlagged: false,
-          hasMine: false
+          hasMine: false,
+          adjacentMines: 0,
         };
       }
     }
@@ -65,6 +105,8 @@ export class MinesweeperService {
       next[row][col].hasMine = true;
       positions.splice(rnd, 1);
     }
+
+    // TODO: Calculate adjacent mines
 
     return next;
   }
