@@ -13,12 +13,12 @@ import { MinesweeperService } from '../services/minesweeper.service';
 export class MinesweeperComponent {
   readonly minesweeperService = inject(MinesweeperService);
 
-  constructor() {
-    const rows = 10;
-    const cols = 10;
-    const mines = rows * cols * 0.15;
+  readonly rows = 10;
+  readonly cols = 10;
+  readonly mines = this.rows * this.cols * 0.15;
 
-    this.minesweeperService.newGame(rows, cols, mines);
+  constructor() {
+    this.minesweeperService.newGame(this.rows, this.cols, this.mines);
   }
 
   onCellClick(event: {row: number, col: number}): void {
@@ -27,5 +27,9 @@ export class MinesweeperComponent {
 
   onFlagClick(event: {row: number, col: number}): void {
     this.minesweeperService.toggleFlag(event.row, event.col);
+  }
+
+  onRestart(): void {
+    this.minesweeperService.newGame(this.rows, this.cols, this.mines);
   }
 }

@@ -8,29 +8,47 @@ export interface Cell {
   hasFlag: boolean;
   hasMine: boolean;
   adjacentMines: number;
+  isExploded: boolean;
 }
+
+export type GameState = 'playing' | 'won' | 'lost';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MinesweeperService {
   private readonly boardSubject = new BehaviorSubject<Cell[][]>([]);
+  private readonly gameStateSubject = new BehaviorSubject<GameState>('playing');
 
   readonly board$ = this.boardSubject.asObservable();
+  readonly gameState$ = this.gameStateSubject.asObservable();
 
   newGame(rows: number, cols: number, mineCount: number): void {
     let board = this.createEmptyBoard(rows, cols);
     board = this.placeMines(board, rows, cols, mineCount);
+    this.gameStateSubject.next('playing');
     this.boardSubject.next(board);
   }
 
   revealCell(row: number, col: number): void {
+    const currentState = this.gameStateSubject.getValue();
+    if (currentState !== 'playing') return;
+
     const next = this.deepCopy(this.boardSubject.getValue());
     const selectedCell = next[row][col];
     if (selectedCell.isRevealed || selectedCell.hasFlag) return;
 
     if (selectedCell.hasMine) {
-      // TODO: Lose
+      selectedCell.isExploded = true;
+      // Reveal all the mines
+      for (let r = 0; r < next.length; r++) {
+        for (let c = 0; c < next[r].length; c++) {
+          if (next[r][c].hasMine) {
+            next[r][c].isRevealed = true;
+          }
+        }
+      }
+      this.gameStateSubject.next('lost');
       this.boardSubject.next(next);
       return;
     }
@@ -94,6 +112,7 @@ export class MinesweeperService {
           hasFlag: false,
           hasMine: false,
           adjacentMines: 0,
+          isExploded: false,
         };
       }
     }

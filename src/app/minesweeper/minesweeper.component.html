@@ -2,6 +2,21 @@
   @if (minesweeperService.board$ | async; as cells) {
     <header class="header">
       <h1>Minesweeper</h1>
+      @if (minesweeperService.gameState$ | async; as gameState) {
+        <div>
+          <button type="button" (click)="onRestart()">
+            🔄 New Game
+          </button>
+        </div>
+
+        <div>
+          @if (gameState === 'lost') {
+            <span>💥 Game Over!</span>
+          } @else if (gameState === 'won') {
+            <span>🎉 You Won!</span>
+          }
+        </div>
+      }
     </header>
 
     <main class="content">
