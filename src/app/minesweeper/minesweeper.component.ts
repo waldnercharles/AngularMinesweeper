@@ -20,4 +20,8 @@ export class MinesweeperComponent {
 
     this.minesweeperService.newGame(rows, cols, mines);
   }
+
+  onCellClick(event: {row: number, col: number}): void {
+    this.minesweeperService.revealCell(event.row, event.col);
+  }
 }

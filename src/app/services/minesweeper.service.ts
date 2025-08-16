@@ -25,28 +25,37 @@ export class MinesweeperService {
   }
 
   revealCell(row: number, col: number): void {
-    const board = this.deepCopy(this.boardSubject.getValue());
-    const selectedCell = board[row][col];
+    const next = this.deepCopy(this.boardSubject.getValue());
+    const selectedCell = next[row][col];
     if (selectedCell.isRevealed || selectedCell.hasFlag) return;
 
     if (selectedCell.hasMine) {
       // TODO: Lose
-      this.boardSubject.next(board);
+      this.boardSubject.next(next);
       return;
     }
 
-    // const queue: [number, number][] = [[row, col]];
-    // while (queue.length > 0) {
-    //   const [x, y] = queue.shift()!;
-    //   const cell = board[x][y];
-    //
-    //   if (cell.isRevealed || cell.isFlagged) continue;
-    //   cell.isRevealed = true;
-    //
-    //   if (!cell.hasMine && cell.adjacentMines == 0) {
-    //
-    //   }
-    // }
+    // Reveal our cell and all its neighbors that don't have any mines near them; recursively.
+    // Using a queue here to avoid a recursive function.
+    const queue: [number, number][] = [[row, col]];
+    while (queue.length > 0) {
+      const [x, y] = queue.shift()!;
+      const testCell = next[x][y];
+
+      if (testCell.isRevealed || testCell.hasFlag) continue;
+      testCell.isRevealed = true;
+
+      if (!testCell.hasMine && testCell.adjacentMines == 0) {
+        this.forEachNeighbor(next, x, y, (r, c) => {
+          const neighborCell = next[r][c];
+          if (!neighborCell.isRevealed && !neighborCell.hasFlag) {
+            queue.push([r, c]);
+          }
+        });
+      }
+    }
+
+    this.boardSubject.next(next);
   }
 
   toggleFlag(row: number, col: number): void {
@@ -76,7 +85,7 @@ export class MinesweeperService {
         cells[row][col] = {
           row,
           col,
-          isRevealed: true,
+          isRevealed: false,
           hasFlag: false,
           hasMine: false,
           adjacentMines: 0,

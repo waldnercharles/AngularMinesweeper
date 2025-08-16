@@ -5,6 +5,7 @@
         <button
           type="button"
           class="cell"
+          (click)="onCellClick(cell.row, cell.col)"
         >
           @if (cell.hasMine && cell.isRevealed) {
             <span>💣</span>
