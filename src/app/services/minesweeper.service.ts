@@ -1,5 +1,6 @@
 ﻿import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
+import {map, distinctUntilChanged} from 'rxjs/operators';
 
 export interface Cell {
   row: number;
@@ -18,23 +19,27 @@ export type GameState = 'playing' | 'won' | 'lost';
 })
 export class MinesweeperService {
   private readonly boardSubject = new BehaviorSubject<Cell[][]>([]);
-  private readonly gameStateSubject = new BehaviorSubject<GameState>('playing');
 
   readonly board$ = this.boardSubject.asObservable();
-  readonly gameState$ = this.gameStateSubject.asObservable();
+
+  // This is not how I'd normally manage state, but, I'm forcing some RXJS into my code.
+  readonly gameState$ = this.board$.pipe(
+    map(board => this.getGameState(board)),
+    distinctUntilChanged()
+  );
 
   newGame(rows: number, cols: number, mineCount: number): void {
     let board = this.createEmptyBoard(rows, cols);
     board = this.placeMines(board, rows, cols, mineCount);
-    this.gameStateSubject.next('playing');
     this.boardSubject.next(board);
   }
 
   revealCell(row: number, col: number): void {
-    const currentState = this.gameStateSubject.getValue();
+    const currentBoard = this.boardSubject.getValue();
+    const currentState = this.getGameState(currentBoard);
     if (currentState !== 'playing') return;
 
-    const next = this.deepCopy(this.boardSubject.getValue());
+    const next = this.deepCopy(currentBoard);
     const selectedCell = next[row][col];
     if (selectedCell.isRevealed || selectedCell.hasFlag) return;
 
@@ -48,7 +53,6 @@ export class MinesweeperService {
           }
         }
       }
-      this.gameStateSubject.next('lost');
       this.boardSubject.next(next);
 
       return;
@@ -75,10 +79,6 @@ export class MinesweeperService {
     }
 
     this.boardSubject.next(next);
-
-    if (this.isFullyRevealed(next)) {
-      this.gameStateSubject.next('won');
-    }
   }
 
   toggleFlag(row: number, col: number): void {
@@ -89,13 +89,17 @@ export class MinesweeperService {
     this.boardSubject.next(next);
   }
 
-  private isFullyRevealed(board: Cell[][]){
-    for (const row of board) {
-      for (const cell of row) {
-        if (!cell.isRevealed && !cell.hasMine) return false;
-      }
-    }
-    return true;
+  private getGameState(board: Cell[][]): GameState {
+    if (board.length === 0) return 'playing';
+
+    const hasExplodedMine = board.flat().some(cell => cell.isExploded);
+    if (hasExplodedMine) return 'lost';
+
+    const isFullyRevealed = board.flat()
+      .filter(cell => !cell.hasMine)
+      .every(cell => cell.isRevealed);
+
+    return isFullyRevealed ? 'won' : 'playing';
   }
 
   private forEachNeighbor(cells: Cell[][], row: number, col: number, fn: (row: number, cell: number) => void) {
