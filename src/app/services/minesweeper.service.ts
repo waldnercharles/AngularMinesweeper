@@ -5,7 +5,7 @@ export interface Cell {
   row: number;
   col: number;
   isRevealed: boolean;
-  isFlagged: boolean;
+  hasFlag: boolean;
   hasMine: boolean;
   adjacentMines: number;
 }
@@ -27,7 +27,7 @@ export class MinesweeperService {
   revealCell(row: number, col: number): void {
     const board = this.deepCopy(this.boardSubject.getValue());
     const selectedCell = board[row][col];
-    if (selectedCell.isRevealed || selectedCell.isFlagged) return;
+    if (selectedCell.isRevealed || selectedCell.hasFlag) return;
 
     if (selectedCell.hasMine) {
       // TODO: Lose
@@ -77,7 +77,7 @@ export class MinesweeperService {
           row,
           col,
           isRevealed: true,
-          isFlagged: false,
+          hasFlag: false,
           hasMine: false,
           adjacentMines: 0,
         };
@@ -106,7 +106,21 @@ export class MinesweeperService {
       positions.splice(rnd, 1);
     }
 
-    // TODO: Calculate adjacent mines
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const cell = next[row][col];
+       if (cell.hasMine) {
+         cell.adjacentMines = 0;
+       } else {
+         // TODO: This might be easier to understand without forEachNeighbor and in its own function.
+         let count = 0;
+         this.forEachNeighbor(next,  row,  col,  (r, c) => {
+           if (next[r][c].hasMine) count++;
+         });
+         next[row][col].adjacentMines = count;
+       }
+      }
+    }
 
     return next;
   }

@@ -8,6 +8,10 @@
         >
           @if (cell.hasMine && cell.isRevealed) {
             <span>💣</span>
+          } @else if (!cell.isRevealed && cell.hasFlag) {
+            <span>🚩</span>
+          } @else if (cell.isRevealed && !cell.hasMine && cell.adjacentMines > 0) {
+            <span>{{cell.adjacentMines}}</span>
           }
         </button>
       }
